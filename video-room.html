@@ -1,141 +1,169 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Video Room — Poiskeloy</title>
-  <style>
-    body {
-      margin: 0;
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-family: Arial, sans-serif;
-      background-image: url('TropicalPic1.jpg');
-      background-size: cover;
-      background-repeat: no-repeat;
-      background-attachment: fixed;
-    }
+    <meta charset="UTF-8">
+    <title>Video Room — Poiskeloy</title>
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: Arial, sans-serif;
+            background-image: url('TropicalPic1.jpg');
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }
 
-    .container {
-      display: flex;
-      gap: 40px;
-      padding: 20px;
-      background-color: rgba(255, 255, 255, 0.1);
-      border-radius: 12px;
-      align-items: flex-start;
-    }
+        .container {
+            display: flex;
+            gap: 40px;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+        }
 
-    .comments {
-      width: 300px;
-      max-height: 80vh;
-      overflow-y: auto;
-      background-color: rgba(255, 255, 255, 0.85);
-      padding: 15px;
-      border-radius: 12px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.3);
-    }
+        .comments {
+            width: 300px;
+            max-height: 80vh;
+            overflow-y: auto;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.3);
+        }
 
-    .comment-box input {
-      width: 100%;
-      padding: 8px;
-      margin-bottom: 8px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-    }
+        .comments h2 {
+            margin-top: 0;
+            font-size: 20px;
+        }
 
-    .comment-box button {
-      width: 100%;
-      padding: 8px;
-      background-color: #28a745;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-    }
+        .admin-box {
+            margin-bottom: 15px;
+        }
 
-    .comment {
-      background-color: #f1f1f1;
-      padding: 10px;
-      margin-bottom: 10px;
-      border-radius: 6px;
-    }
+        .admin-box input {
+            width: 100%;
+            padding: 6px;
+            margin-bottom: 6px;
+            border-radius: 6px;
+            border: 1px solid #bbb;
+        }
 
-    video {
-      width: 300px;
-      max-width: 100%;
-      border-radius: 12px;
-      box-shadow: 0 0 20px rgba(0,0,0,0.4);
-    }
-  </style>
+        .admin-box button {
+            width: 100%;
+            padding: 6px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .comment-box {
+            margin-bottom: 15px;
+        }
+
+        .comment-box input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 8px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+        }
+
+        .comment-box button {
+            width: 100%;
+            padding: 8px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .comment {
+            background-color: #f1f1f1;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 6px;
+        }
+
+        video {
+            width: 50%;
+            max-width: 600px;
+            border-radius: 12px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.4);
+        }
+    </style>
 </head>
 <body>
 
-  <div class="container">
-    <div class="comments">
-      <h2>Comments</h2>
-      <div class="comment-box">
-        <input type="text" id="username" placeholder="Your name">
-        <input type="text" id="commentText" placeholder="Your comment">
-        <button onclick="addComment()">Post Comment</button>
-      </div>
-      <div id="commentList"></div>
+    <div class="container">
+        <!-- Comment Section -->
+        <div class="comments">
+            <h2>Comments</h2>
+
+            <!-- ADMIN LOGIN BOX -->
+            <div class="admin-box">
+                <input type="password" id="adminCode" placeholder="Admin code">
+                <button onclick="enableAdmin()">Enter</button>
+            </div>
+
+            <div class="comment-box">
+                <input type="text" id="username" placeholder="Your name">
+                <input type="text" id="commentText" placeholder="Your comment">
+                <button onclick="addComment()">Post Comment</button>
+            </div>
+
+            <div id="commentList"></div>
+        </div>
+
+        <!-- Video Section -->
+        <video controls autoplay>
+            <source src="hussein.mp4.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
     </div>
 
-    <video controls autoplay>
-      <source src="hussein.mp4.mp4" type="video/mp4">
-      Your browser does not support the video tag.
-    </video>
-  </div>
+    <script>
+        let isAdmin = false;
 
-  <!-- Firebase SDKs -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
-    import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-analytics.js";
-    import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-database.js";
+        function enableAdmin() {
+            const code = document.getElementById('adminCode').value.trim();
+            if (code === "Goon67") {
+                isAdmin = true;
+                alert("Admin mode enabled");
+            } else {
+                alert("Incorrect admin code");
+            }
+        }
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyAyX_ZtqO1T79hgjDrQYwgpusgGBGuSKnA",
-      authDomain: "poiskeloy.firebaseapp.com",
-      projectId: "poiskeloy",
-      storageBucket: "poiskeloy.firebasestorage.app",
-      messagingSenderId: "723227876242",
-      appId: "1:723227876242:web:c619f1e32adf740d16ff4b",
-      measurementId: "G-55SQRM4V80",
-      databaseURL: "https://poiskeloy-default-rtdb.firebaseio.com"
-    };
+        function loadComments() {
+            const saved = localStorage.getItem('comments');
+            if (saved) {
+                document.getElementById('commentList').innerHTML = saved;
+            }
+        }
 
-    const app = initializeApp(firebaseConfig);
-    const analytics = getAnalytics(app);
-    const db = getDatabase(app);
-    const commentsRef = ref(db, "poiskeloy-comments");
+        function addComment() {
+            const name = document.getElementById('username').value.trim();
+            const text = document.getElementById('commentText').value.trim();
+            if (name && text) {
+                const commentHTML = `<div class="comment"><strong>${name}</strong><br>${text}</div>`;
+                document.getElementById('commentList').innerHTML += commentHTML;
+                localStorage.setItem('comments', document.getElementById('commentList').innerHTML);
+                document.getElementById('username').value = '';
+                document.getElementById('commentText').value = '';
+            }
+        }
 
-    window.addComment = function () {
-      const name = document.getElementById("username").value.trim();
-      const text = document.getElementById("commentText").value.trim();
-      if (!name || !text) return;
-
-      push(commentsRef, {
-        name: name,
-        text: text,
-        time: Date.now()
-      });
-
-      document.getElementById("username").value = "";
-      document.getElementById("commentText").value = "";
-    };
-
-    onChildAdded(commentsRef, (snapshot) => {
-      const data = snapshot.val();
-      const div = document.createElement("div");
-      div.className = "comment";
-      div.innerHTML = `<strong>${data.name}</strong><br>${data.text}`;
-      document.getElementById("commentList").appendChild(div);
-    });
-  </script>
+        window.onload = loadComments;
+    </script>
 
 </body>
 </html>
-
 
 
