@@ -23,23 +23,17 @@
       padding: 20px;
       background-color: rgba(255, 255, 255, 0.1);
       border-radius: 12px;
+      align-items: flex-start;
     }
 
     .comments {
       width: 300px;
       max-height: 80vh;
       overflow-y: auto;
-      background-color: rgba(255, 255, 255, 0.8);
+      background-color: rgba(255, 255, 255, 0.85);
       padding: 15px;
       border-radius: 12px;
       box-shadow: 0 0 10px rgba(0,0,0,0.3);
-    }
-
-    .comment {
-      background-color: #f1f1f1;
-      padding: 10px;
-      margin-bottom: 10px;
-      border-radius: 6px;
     }
 
     .comment-box input {
@@ -60,9 +54,16 @@
       cursor: pointer;
     }
 
+    .comment {
+      background-color: #f1f1f1;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 6px;
+    }
+
     video {
-      width: 50%;
-      max-width: 600px;
+      width: 600px;
+      max-width: 100%;
       border-radius: 12px;
       box-shadow: 0 0 20px rgba(0,0,0,0.4);
     }
@@ -83,15 +84,17 @@
 
     <video controls autoplay>
       <source src="hussein.mp4" type="video/mp4">
+      <source src="hussein.mp4.mp4" type="video/mp4">
+      Your browser does not support the video tag.
     </video>
   </div>
 
   <!-- Firebase SDKs -->
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-analytics.js";
+    import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-database.js";
 
-  <script>
-    // Your Firebase config
     const firebaseConfig = {
       apiKey: "AIzaSyAyX_ZtqO1T79hgjDrQYwgpusgGBGuSKnA",
       authDomain: "poiskeloy.firebaseapp.com",
@@ -103,16 +106,17 @@
       databaseURL: "https://poiskeloy-default-rtdb.firebaseio.com"
     };
 
-    // Initialize Firebase
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database().ref("poiskeloy-comments");
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+    const db = getDatabase(app);
+    const commentsRef = ref(db, "poiskeloy-comments");
 
-    function addComment() {
+    window.addComment = function () {
       const name = document.getElementById("username").value.trim();
       const text = document.getElementById("commentText").value.trim();
       if (!name || !text) return;
 
-      db.push({
+      push(commentsRef, {
         name: name,
         text: text,
         time: Date.now()
@@ -120,9 +124,9 @@
 
       document.getElementById("username").value = "";
       document.getElementById("commentText").value = "";
-    }
+    };
 
-    db.on("child_added", snapshot => {
+    onChildAdded(commentsRef, (snapshot) => {
       const data = snapshot.val();
       const div = document.createElement("div");
       div.className = "comment";
@@ -133,10 +137,4 @@
 
 </body>
 </html>
-
-
-
-
-
-
 
