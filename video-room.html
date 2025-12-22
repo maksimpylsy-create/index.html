@@ -1,183 +1,138 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Video Room — Poiskeloy</title>
+  <meta charset="UTF-8">
+  <title>Video Room — Poiskeloy</title>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: Arial, sans-serif;
+      background-image: url('TropicalPic1.jpg');
+      background-size: cover;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+    }
 
-    <style>
-        body {
-            margin: 0;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-family: Arial, sans-serif;
+    .container {
+      display: flex;
+      gap: 40px;
+      padding: 20px;
+      background-color: rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+    }
 
-            background-image: url('TropicalPic1.jpg');
-            background-size: cover;
-            background-repeat: no-repeat;
-            background-attachment: fixed;
-        }
+    .comments {
+      width: 300px;
+      max-height: 80vh;
+      overflow-y: auto;
+      background-color: rgba(255, 255, 255, 0.8);
+      padding: 15px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.3);
+    }
 
-        .container {
-            display: flex;
-            gap: 40px;
-            padding: 20px;
-            background-color: rgba(255, 255, 255, 0.15);
-            border-radius: 12px;
-            backdrop-filter: blur(4px);
-        }
+    .comment {
+      background-color: #f1f1f1;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 6px;
+    }
 
-        .comments {
-            width: 300px;
-            max-height: 80vh;
-            overflow-y: auto;
-            background-color: rgba(255, 255, 255, 0.9);
-            padding: 15px;
-            border-radius: 12px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.3);
-        }
+    .comment-box input {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 8px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
 
-        .comments h2 {
-            margin-top: 0;
-            font-size: 20px;
-        }
+    .comment-box button {
+      width: 100%;
+      padding: 8px;
+      background-color: #28a745;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
 
-        .comment-box input {
-            width: 100%;
-            padding: 8px;
-            margin-bottom: 8px;
-            border-radius: 6px;
-            border: 1px solid #ccc;
-        }
-
-        .comment-box button {
-            width: 100%;
-            padding: 8px;
-            background-color: #28a745;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-        }
-
-        .comment {
-            background-color: #f1f1f1;
-            padding: 10px;
-            margin-bottom: 10px;
-            border-radius: 6px;
-        }
-
-        video {
-            width: 50%;
-            max-width: 600px;
-            border-radius: 12px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.4);
-        }
-    </style>
+    video {
+      width: 50%;
+      max-width: 600px;
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.4);
+    }
+  </style>
 </head>
 <body>
 
-    <div class="container">
-
-        <!-- COMMENT SECTION -->
-        <div class="comments">
-            <h2>Comments</h2>
-
-            <div class="comment-box">
-                <input type="text" id="username" placeholder="Your name">
-                <input type="text" id="commentText" placeholder="Your comment">
-                <button onclick="addComment()">Post Comment</button>
-            </div>
-
-            <div id="commentList"></div>
-        </div>
-
-        <!-- VIDEO -->
-        <video controls autoplay>
-            <source src="hussein.mp4" type="video/mp4">
-            Your browser does not support the video tag.
-        </video>
-
+  <div class="container">
+    <div class="comments">
+      <h2>Comments</h2>
+      <div class="comment-box">
+        <input type="text" id="username" placeholder="Your name">
+        <input type="text" id="commentText" placeholder="Your comment">
+        <button onclick="addComment()">Post Comment</button>
+      </div>
+      <div id="commentList"></div>
     </div>
 
-    <!-- Firebase SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <video controls autoplay>
+      <source src="hussein.mp4" type="video/mp4">
+    </video>
+  </div>
 
-    <script>
-        // TODO: Replace with YOUR Firebase config from the Firebase console
-        // Project settings -> Your apps -> Web app -> Config
-        var firebaseConfig = {
-            apiKey: "YOUR_API_KEY_HERE",
-            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-            databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.firebaseio.com",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_PROJECT_ID.appspot.com",
-            messagingSenderId: "YOUR_SENDER_ID",
-            appId: "YOUR_APP_ID"
-        };
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
+  <script>
+    // Your Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyAyX_ZtqO1T79hgjDrQYwgpusgGBGuSKnA",
+      authDomain: "poiskeloy.firebaseapp.com",
+      projectId: "poiskeloy",
+      storageBucket: "poiskeloy.firebasestorage.app",
+      messagingSenderId: "723227876242",
+      appId: "1:723227876242:web:c619f1e32adf740d16ff4b",
+      measurementId: "G-55SQRM4V80",
+      databaseURL: "https://poiskeloy-default-rtdb.firebaseio.com"
+    };
 
-        // Reference to comments collection in Realtime Database
-        var commentsRef = firebase.database().ref("poiskeloy-comments");
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database().ref("poiskeloy-comments");
 
-        // Render a single comment
-        function renderComment(data) {
-            var comment = data.val();
-            var commentList = document.getElementById('commentList');
+    function addComment() {
+      const name = document.getElementById("username").value.trim();
+      const text = document.getElementById("commentText").value.trim();
+      if (!name || !text) return;
 
-            var div = document.createElement('div');
-            div.className = 'comment';
-            div.innerHTML = "<strong>" + escapeHtml(comment.name) + "</strong><br>" +
-                            escapeHtml(comment.text);
+      db.push({
+        name: name,
+        text: text,
+        time: Date.now()
+      });
 
-            commentList.appendChild(div);
-        }
+      document.getElementById("username").value = "";
+      document.getElementById("commentText").value = "";
+    }
 
-        // Escape HTML to avoid XSS
-        function escapeHtml(str) {
-            return str
-                .replace(/&/g, "&amp;")
-                .replace(/</g, "&lt;")
-                .replace(/>/g, "&gt;")
-                .replace(/"/g, "&quot;")
-                .replace(/'/g, "&#039;");
-        }
-
-        // Load existing comments and listen for new ones
-        commentsRef.on("child_added", function(snapshot) {
-            renderComment(snapshot);
-        });
-
-        // Add a new comment
-        function addComment() {
-            var nameInput = document.getElementById('username');
-            var textInput = document.getElementById('commentText');
-
-            var name = nameInput.value.trim();
-            var text = textInput.value.trim();
-
-            if (!name || !text) return;
-
-            // Push comment to Firebase (everyone will see it)
-            commentsRef.push({
-                name: name,
-                text: text,
-                timestamp: Date.now()
-            });
-
-            // Clear inputs
-            nameInput.value = '';
-            textInput.value = '';
-        }
-    </script>
+    db.on("child_added", snapshot => {
+      const data = snapshot.val();
+      const div = document.createElement("div");
+      div.className = "comment";
+      div.innerHTML = `<strong>${data.name}</strong><br>${data.text}`;
+      document.getElementById("commentList").appendChild(div);
+    });
+  </script>
 
 </body>
 </html>
-
 
 
 
