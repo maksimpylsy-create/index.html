@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <!-- SEO ESSENTIALS -->
+    <title>Poiskeloy — Tropical Search</title>
+    <meta name="description" content="Poiskeloy is a tropical-themed search experience. Explore, discover, and search with style.">
+    <meta name="keywords" content="Poiskeloy, search engine, tropical, explore, discover, travel, island, fefea">
+    <meta name="author" content="Poiskeloy">
+
+    <!-- SOCIAL MEDIA PREVIEW -->
+    <meta property="og:title" content="Poiskeloy — Tropical Search">
+    <meta property="og:description" content="A tropical search experience with a clean and modern design.">
+    <meta property="og:image" content="PoiskeloyLogo2.png">
+    <meta property="og:type" content="website">
+
+    <!-- MOBILE FRIENDLY -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        body {
+            margin: 0;
+            padding-top: 15px;
+            text-align: center;
+            font-family: Arial, sans-serif;
+            background-image: url(TropicalPic1.jpg);
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }
+
+        .logo-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .logo {
+            max-width: 750px;
+            height: auto;
+        }
+
+        .search-container {
+            display: flex;
+            justify-content: center;
+        }
+
+        .search-box {
+            width: 500px;
+            max-width: 90%;
+            padding: 14px 20px;
+            font-size: 16px;
+            border-radius: 30px;
+            border: 1px solid #dcdcdc;
+            outline: none;
+        }
+
+        .search-box:focus {
+            box-shadow: 0 1px 6px rgba(32,33,36,.28);
+            border-color: transparent;
+        }
+    </style>
+
+    <!-- GOOGLE SEARCH SCRIPT -->
+    <script>
+        function handleSearch(event) {
+            if (event.key === "Enter") {
+                const query = event.target.value.trim();
+                if (query !== "") {
+                    window.location.href = "https://www.google.com/search?q=" + encodeURIComponent(query);
+                }
+            }
+        }
+    </script>
+</head>
+
+<body>
+    <div class="logo-container">
+        <img src="PoiskeloyLogo2.png" class="logo">
+    </div>
+
+    <div class="search-container">
+        <input 
+            type="text" 
+            placeholder="Search..." 
+            class="search-box"
+            onkeydown="handleSearch(event)"
+        >
+    </div>
+</body>
+</html>
