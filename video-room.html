@@ -40,11 +40,13 @@
             font-size: 20px;
         }
 
-        .admin-box {
+        .admin-box,
+        .wipe-box {
             margin-bottom: 15px;
         }
 
-        .admin-box input {
+        .admin-box input,
+        .wipe-box button {
             width: 100%;
             padding: 6px;
             margin-bottom: 6px;
@@ -56,6 +58,14 @@
             width: 100%;
             padding: 6px;
             background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .wipe-box button {
+            background-color: #dc3545;
             color: white;
             border: none;
             border-radius: 6px;
@@ -112,6 +122,11 @@
                 <button onclick="enableAdmin()">Enter</button>
             </div>
 
+            <!-- Wipe Comments Button -->
+            <div class="wipe-box">
+                <button onclick="wipeComments()">Wipe All Comments</button>
+            </div>
+
             <div class="comment-box">
                 <input type="text" id="username" placeholder="Your name">
                 <input type="text" id="commentText" placeholder="Your comment">
@@ -136,7 +151,6 @@
             if (code === "Goon67") {
                 isAdmin = true;
                 alert("Admin mode enabled");
-                // You can now show delete buttons or other admin tools
             } else {
                 alert("Incorrect admin code");
             }
@@ -161,10 +175,19 @@
             }
         }
 
+        function wipeComments() {
+            if (confirm("Are you sure you want to delete all comments?")) {
+                localStorage.removeItem('comments');
+                document.getElementById('commentList').innerHTML = '';
+                alert("All comments wiped.");
+            }
+        }
+
         window.onload = loadComments;
     </script>
 
 </body>
 </html>
+
 
 
