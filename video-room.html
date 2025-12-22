@@ -1,317 +1,133 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Video Room — Poiskeloy</title>
-    <style>
-        body {
-            margin: 0;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-family: Arial, sans-serif;
-            background-image: url('TropicalPic1.jpg');
-            background-size: cover;
-            background-repeat: no-repeat;
-            background-attachment: fixed;
+<script>
+    const firebaseConfig = {
+        /* PASTE_YOUR_FIREBASE_CONFIG_HERE */
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    // FIXED: now using the correct Firebase node
+    const commentsRef = db.ref("poiskeloy-comments");
+
+    let isAdmin = false;
+
+    function enableAdmin() {
+        const code = document.getElementById('adminCode').value.trim();
+        if (code === "Goon67") {
+            isAdmin = true;
+            alert("Admin mode enabled");
+            updateAdminVisibility();
+        } else {
+            alert("Incorrect admin code");
         }
+    }
 
-        .container {
-            display: flex;
-            gap: 40px;
-            padding: 20px;
-            background-color: rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-        }
+    function addComment() {
+        const nameInput = document.getElementById('username');
+        const textInput = document.getElementById('commentText');
+        const name = nameInput.value.trim();
+        const text = textInput.value.trim();
 
-        .comments {
-            width: 320px;
-            max-height: 80vh;
-            overflow-y: auto;
-            background-color: rgba(255, 255, 255, 0.8);
-            padding: 15px;
-            border-radius: 12px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.3);
-        }
+        if (!name || !text) return;
 
-        .comments h2 {
-            margin-top: 0;
-            font-size: 20px;
-        }
-
-        .admin-box,
-        .wipe-box {
-            margin-bottom: 10px;
-        }
-
-        .admin-box input {
-            width: 100%;
-            padding: 6px;
-            margin-bottom: 6px;
-            border-radius: 6px;
-            border: 1px solid #bbb;
-        }
-
-        .admin-box button {
-            width: 100%;
-            padding: 6px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-        }
-
-        .wipe-box button {
-            width: 100%;
-            padding: 6px;
-            background-color: #dc3545;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-        }
-
-        .comment-box {
-            margin-bottom: 15px;
-        }
-
-        .comment-box input {
-            width: 100%;
-            padding: 8px;
-            margin-bottom: 8px;
-            border-radius: 6px;
-            border: 1px solid #ccc;
-        }
-
-        .comment-box button {
-            width: 100%;
-            padding: 8px;
-            background-color: #28a745;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-        }
-
-        .comment {
-            background-color: #f1f1f1;
-            padding: 8px;
-            margin-bottom: 8px;
-            border-radius: 6px;
-            font-size: 14px;
-            position: relative;
-        }
-
-        .comment strong {
-            display: block;
-            margin-bottom: 2px;
-        }
-
-        .comment-time {
-            font-size: 11px;
-            color: #666;
-            margin-top: 4px;
-        }
-
-        .delete-btn {
-            position: absolute;
-            top: 6px;
-            right: 6px;
-            background-color: #ff6b6b;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            padding: 2px 6px;
-            font-size: 11px;
-            cursor: pointer;
-            display: none;
-        }
-
-        .comment.admin-visible .delete-btn {
-            display: inline-block;
-        }
-
-        video {
-            width: 50%;
-            max-width: 600px;
-            border-radius: 12px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.4);
-        }
-    </style>
-</head>
-<body>
-
-    <div class="container">
-        <div class="comments">
-            <h2>Comments</h2>
-
-            <div class="admin-box">
-                <input type="password" id="adminCode" placeholder="Admin code">
-                <button onclick="enableAdmin()">Enter</button>
-            </div>
-
-            <div class="wipe-box">
-                <button onclick="wipeComments()">Wipe All Comments</button>
-            </div>
-
-            <div class="comment-box">
-                <input type="text" id="username" placeholder="Your name">
-                <input type="text" id="commentText" placeholder="Your comment">
-                <button onclick="addComment()">Post Comment</button>
-            </div>
-
-            <div id="commentList"></div>
-        </div>
-
-        <video controls autoplay>
-            <source src="hussein.mp4.mp4" type="video/mp4">
-            Your browser does not support the video tag.
-        </video>
-    </div>
-
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-
-    <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyAyX_ZtqQI1779hgjDrQYwgpusGBGuSkNA",
-            authDomain: "poiskeloy.firebaseapp.com",
-            databaseURL: "https://poiskeloy-default-rtdb.firebaseio.com",
-            projectId: "poiskeloy",
-            storageBucket: "poiskeloy.appspot.com",
-            messagingSenderId: "7232327876242",
-            appId: "1:7232327876242:web:c619f1e32adf740d16f4b",
-            measurementId: "G-55QRM4W80"
+        const newComment = {
+            name: name,
+            text: text,
+            timestamp: Date.now()
         };
 
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
-        const commentsRef = db.ref("comments");
+        commentsRef.push(newComment);
 
-        let isAdmin = false;
+        nameInput.value = "";
+        textInput.value = "";
+    }
 
-        function enableAdmin() {
-            const code = document.getElementById('adminCode').value.trim();
-            if (code === "Goon67") {
-                isAdmin = true;
-                alert("Admin mode enabled");
-                updateAdminVisibility();
-            } else {
-                alert("Incorrect admin code");
-            }
+    function renderComment(key, data) {
+        const commentList = document.getElementById('commentList');
+
+        let commentDiv = document.getElementById("comment-" + key);
+        if (!commentDiv) {
+            commentDiv = document.createElement('div');
+            commentDiv.id = "comment-" + key;
+            commentDiv.className = "comment";
+            commentList.appendChild(commentDiv);
         }
 
-        function addComment() {
-            const nameInput = document.getElementById('username');
-            const textInput = document.getElementById('commentText');
-            const name = nameInput.value.trim();
-            const text = textInput.value.trim();
+        const date = new Date(data.timestamp || Date.now());
+        const timeString = date.toLocaleString();
 
-            if (!name || !text) return;
+        commentDiv.innerHTML = `
+            <strong>${escapeHtml(data.name || "Anonymous")}</strong>
+            <span>${escapeHtml(data.text || "")}</span>
+            <div class="comment-time">${timeString}</div>
+            <button class="delete-btn" onclick="deleteComment('${key}')">Delete</button>
+        `;
 
-            const newComment = {
-                name: name,
-                text: text,
-                timestamp: Date.now()
-            };
-
-            commentsRef.push(newComment);
-
-            nameInput.value = "";
-            textInput.value = "";
+        if (isAdmin) {
+            commentDiv.classList.add("admin-visible");
+        } else {
+            commentDiv.classList.remove("admin-visible");
         }
+    }
 
-        function renderComment(key, data) {
-            const commentList = document.getElementById('commentList');
+    function deleteComment(key) {
+        if (!isAdmin) {
+            alert("Admin mode required to delete comments.");
+            return;
+        }
+        if (confirm("Delete this comment?")) {
+            commentsRef.child(key).remove();
+        }
+    }
 
-            let commentDiv = document.getElementById("comment-" + key);
-            if (!commentDiv) {
-                commentDiv = document.createElement('div');
-                commentDiv.id = "comment-" + key;
-                commentDiv.className = "comment";
-                commentList.appendChild(commentDiv);
-            }
+    function wipeComments() {
+        if (!isAdmin) {
+            alert("Admin mode required to wipe all comments.");
+            return;
+        }
+        if (confirm("Are you sure you want to delete ALL comments?")) {
+            commentsRef.remove();
+        }
+    }
 
-            const date = new Date(data.timestamp || Date.now());
-            const timeString = date.toLocaleString();
+    commentsRef.on("child_added", snapshot => {
+        const key = snapshot.key;
+        const data = snapshot.val();
+        renderComment(key, data);
+    });
 
-            commentDiv.innerHTML = `
-                <strong>${escapeHtml(data.name || "Anonymous")}</strong>
-                <span>${escapeHtml(data.text || "")}</span>
-                <div class="comment-time">${timeString}</div>
-                <button class="delete-btn" onclick="deleteComment('${key}')">Delete</button>
-            `;
+    commentsRef.on("child_changed", snapshot => {
+        const key = snapshot.key;
+        const data = snapshot.val();
+        renderComment(key, data);
+    });
 
+    commentsRef.on("child_removed", snapshot => {
+        const key = snapshot.key;
+        const el = document.getElementById("comment-" + key);
+        if (el) el.remove();
+    });
+
+    function updateAdminVisibility() {
+        const comments = document.querySelectorAll(".comment");
+        comments.forEach(comment => {
             if (isAdmin) {
-                commentDiv.classList.add("admin-visible");
+                comment.classList.add("admin-visible");
             } else {
-                commentDiv.classList.remove("admin-visible");
+                comment.classList.remove("admin-visible");
             }
-        }
-
-        function deleteComment(key) {
-            if (!isAdmin) {
-                alert("Admin mode required to delete comments.");
-                return;
-            }
-            if (confirm("Delete this comment?")) {
-                commentsRef.child(key).remove();
-            }
-        }
-
-        function wipeComments() {
-            if (!isAdmin) {
-                alert("Admin mode required to wipe all comments.");
-                return;
-            }
-            if (confirm("Are you sure you want to delete ALL comments?")) {
-                commentsRef.remove();
-            }
-        }
-
-        commentsRef.on("child_added", snapshot => {
-            const key = snapshot.key;
-            const data = snapshot.val();
-            renderComment(key, data);
         });
+    }
 
-        commentsRef.on("child_changed", snapshot => {
-            const key = snapshot.key;
-            const data = snapshot.val();
-            renderComment(key, data);
-        });
-
-        commentsRef.on("child_removed", snapshot => {
-            const key = snapshot.key;
-            const el = document.getElementById("comment-" + key);
-            if (el) el.remove();
-        });
-
-        function updateAdminVisibility() {
-            const comments = document.querySelectorAll(".comment");
-            comments.forEach(comment => {
-                if (isAdmin) {
-                    comment.classList.add("admin-visible");
-                } else {
-                    comment.classList.remove("admin-visible");
-                }
-            });
-        }
-
-        function escapeHtml(str) {
-            return String(str)
-                .replace(/&/g, "&amp;")
-                .replace(/</g, "&lt;")
-                .replace(/>/g, "&gt;")
-                .replace(/"/g, "&quot;")
-                .replace(/'/g, "&#039;");
-        }
-    </script>
-
-</body>
-</html>
+    function escapeHtml(str) {
+        return String(str)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+</script>
 
 
 
