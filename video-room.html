@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Video Room — Poiskeloy</title>
+
     <style>
         body {
             margin: 0;
@@ -22,15 +23,16 @@
             display: flex;
             gap: 40px;
             padding: 20px;
-            background-color: rgba(255, 255, 255, 0.1);
+            background-color: rgba(255, 255, 255, 0.15);
             border-radius: 12px;
+            backdrop-filter: blur(4px);
         }
 
         .comments {
             width: 300px;
             max-height: 80vh;
             overflow-y: auto;
-            background-color: rgba(255, 255, 255, 0.8);
+            background-color: rgba(255, 255, 255, 0.9);
             padding: 15px;
             border-radius: 12px;
             box-shadow: 0 0 10px rgba(0,0,0,0.3);
@@ -39,10 +41,6 @@
         .comments h2 {
             margin-top: 0;
             font-size: 20px;
-        }
-
-        .comment-box {
-            margin-bottom: 15px;
         }
 
         .comment-box input {
@@ -81,49 +79,105 @@
 <body>
 
     <div class="container">
-        <!-- Comment Section -->
+
+        <!-- COMMENT SECTION -->
         <div class="comments">
             <h2>Comments</h2>
+
             <div class="comment-box">
                 <input type="text" id="username" placeholder="Your name">
                 <input type="text" id="commentText" placeholder="Your comment">
                 <button onclick="addComment()">Post Comment</button>
             </div>
+
             <div id="commentList"></div>
         </div>
 
-        <!-- Video Section -->
+        <!-- VIDEO -->
         <video controls autoplay>
-            <source src="hussein.mp4.mp4" type="video/mp4">
+            <source src="hussein.mp4" type="video/mp4">
             Your browser does not support the video tag.
         </video>
+
     </div>
 
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
     <script>
-        function loadComments() {
-            const saved = localStorage.getItem('comments');
-            if (saved) {
-                document.getElementById('commentList').innerHTML = saved;
-            }
+        // TODO: Replace with YOUR Firebase config from the Firebase console
+        // Project settings -> Your apps -> Web app -> Config
+        var firebaseConfig = {
+            apiKey: "YOUR_API_KEY_HERE",
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+            databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.firebaseio.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT_ID.appspot.com",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+
+        // Reference to comments collection in Realtime Database
+        var commentsRef = firebase.database().ref("poiskeloy-comments");
+
+        // Render a single comment
+        function renderComment(data) {
+            var comment = data.val();
+            var commentList = document.getElementById('commentList');
+
+            var div = document.createElement('div');
+            div.className = 'comment';
+            div.innerHTML = "<strong>" + escapeHtml(comment.name) + "</strong><br>" +
+                            escapeHtml(comment.text);
+
+            commentList.appendChild(div);
         }
 
+        // Escape HTML to avoid XSS
+        function escapeHtml(str) {
+            return str
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        // Load existing comments and listen for new ones
+        commentsRef.on("child_added", function(snapshot) {
+            renderComment(snapshot);
+        });
+
+        // Add a new comment
         function addComment() {
-            const name = document.getElementById('username').value.trim();
-            const text = document.getElementById('commentText').value.trim();
-            if (name && text) {
-                const commentHTML = `<div class="comment"><strong>${name}</strong><br>${text}</div>`;
-                document.getElementById('commentList').innerHTML += commentHTML;
-                localStorage.setItem('comments', document.getElementById('commentList').innerHTML);
-                document.getElementById('username').value = '';
-                document.getElementById('commentText').value = '';
-            }
-        }
+            var nameInput = document.getElementById('username');
+            var textInput = document.getElementById('commentText');
 
-        window.onload = loadComments;
+            var name = nameInput.value.trim();
+            var text = textInput.value.trim();
+
+            if (!name || !text) return;
+
+            // Push comment to Firebase (everyone will see it)
+            commentsRef.push({
+                name: name,
+                text: text,
+                timestamp: Date.now()
+            });
+
+            // Clear inputs
+            nameInput.value = '';
+            textInput.value = '';
+        }
     </script>
 
 </body>
 </html>
+
 
 
 
