@@ -6,23 +6,34 @@
 
 <style>
 body {
+    margin: 0;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     font-family: Arial;
-    background: #222;
-    color: white;
-    padding: 20px;
+    background-image: url('TropicalPic1.jpg');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
 }
 
 .container {
     display: flex;
     gap: 40px;
+    background: rgba(255,255,255,0.1);
+    padding: 20px;
+    border-radius: 12px;
 }
 
+/* COMMENTS */
 .comments {
-    width: 350px;
-    background: white;
-    color: black;
-    padding: 10px;
-    border-radius: 10px;
+    width: 320px;
+    max-height: 80vh;
+    overflow-y: auto;
+    background: rgba(255,255,255,0.9);
+    padding: 15px;
+    border-radius: 12px;
 }
 
 .comment {
@@ -58,28 +69,41 @@ body {
     border: none;
     cursor: pointer;
 }
+
+/* VIDEO */
+video {
+    width: 500px;
+    max-width: 50vw;
+    border-radius: 12px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+}
 </style>
 </head>
 
 <body>
 
 <div class="container">
-<div class="comments">
 
+<div class="comments">
 <h2>Comments</h2>
 
-<input id="adminCode" placeholder="admin code">
+<input id="adminCode" placeholder="Admin code">
 <button onclick="enableAdmin()">Enter</button>
 
 <br><br>
 
-<input id="username" placeholder="name">
-<input id="commentText" placeholder="comment">
+<input id="username" placeholder="Name">
+<input id="commentText" placeholder="Comment">
 <button onclick="addComment()">Post</button>
 
 <div id="commentList"></div>
-
 </div>
+
+<!-- VIDEO -->
+<video controls autoplay loop>
+    <source src="WhiteDogLickingScreen.mp4" type="video/mp4">
+</video>
+
 </div>
 
 <!-- FIREBASE -->
@@ -100,7 +124,6 @@ const repliesRef = db.ref("replies");
 
 let isAdmin = false;
 
-// ADMIN
 function enableAdmin() {
     if (adminCode.value === "Goon67") {
         isAdmin = true;
@@ -147,16 +170,15 @@ function renderComment(key, data) {
     `;
 
     list.prepend(div);
-
     loadReplies(key);
 }
 
-// SHOW REPLY INPUT
+// SHOW REPLY
 function showReply(id) {
     const box = document.getElementById("replyBox-" + id);
     box.innerHTML = `
-        <input id="rn-${id}" placeholder="name">
-        <input id="rt-${id}" placeholder="reply">
+        <input id="rn-${id}" placeholder="Name">
+        <input id="rt-${id}" placeholder="Reply">
         <button onclick="addReply('${id}')">Send</button>
     `;
 }
@@ -242,11 +264,10 @@ function deleteReply(cid, rid) {
     repliesRef.child(cid).child(rid).remove();
 }
 
-// LISTEN
+// LISTENER
 commentsRef.on("child_added", s => renderComment(s.key, s.val()));
 </script>
 
 </body>
 </html>
-
 
