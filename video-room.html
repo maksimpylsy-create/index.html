@@ -14,83 +14,81 @@ body {
     font-family: Arial;
     background-image: url('TropicalPic1.jpg');
     background-size: cover;
-    background-repeat: no-repeat;
-    background-attachment: fixed;
 }
 
-/* RESTAURANT BUTTON */
+/* BUTTON */
 .restaurant-btn {
     position: fixed;
-    top: 20px;
-    right: 20px;
-    background: #3cb371;
+    top: 15px;
+    right: 15px;
+    background: #00c896;
     color: white;
-    padding: 12px 18px;
-    border-radius: 8px;
+    padding: 10px 14px;
+    border-radius: 10px;
     text-decoration: none;
-    font-weight: bold;
-}
-.restaurant-btn:hover {
-    background: #2e8b57;
+    font-size: 14px;
 }
 
-/* LAYOUT */
+/* CONTAINER */
 .container {
     display: flex;
-    gap: 40px;
-    background: rgba(255,255,255,0.1);
-    padding: 20px;
-    border-radius: 12px;
+    gap: 25px;
+    background: rgba(255,255,255,0.15);
+    backdrop-filter: blur(10px);
+    padding: 15px;
+    border-radius: 15px;
 }
 
 /* COMMENTS */
 .comments {
-    width: 320px;
-    max-height: 80vh;
+    width: 260px;
+    max-height: 70vh;
     overflow-y: auto;
     background: rgba(255,255,255,0.9);
-    padding: 15px;
+    padding: 12px;
     border-radius: 12px;
+    font-size: 13px;
 }
 
 .comment {
-    background: #f1f1f1;
-    padding: 8px;
-    margin-bottom: 10px;
-    border-radius: 6px;
+    background: #ffffff;
+    padding: 6px;
+    margin-bottom: 8px;
+    border-radius: 8px;
 }
 
 .reply {
-    background: #ddd;
-    margin-top: 5px;
-    padding: 5px;
-    border-radius: 5px;
+    background: #e6fff7;
+    margin-top: 4px;
+    padding: 4px;
+    border-radius: 6px;
+    font-size: 12px;
 }
 
 .reply-btn {
-    font-size: 12px;
-    color: blue;
+    font-size: 11px;
+    color: #0077ff;
     cursor: pointer;
 }
 
 .toggle {
-    font-size: 12px;
-    color: #555;
+    font-size: 11px;
     cursor: pointer;
+    color: #555;
 }
 
 .delete-btn {
     font-size: 10px;
-    background: red;
+    background: #ff4d4d;
     color: white;
     border: none;
     cursor: pointer;
+    border-radius: 4px;
 }
 
 /* VIDEO */
 video {
-    width: 500px;
-    max-width: 50vw;
+    width: 350px;
     border-radius: 12px;
 }
 </style>
@@ -98,15 +96,15 @@ video {
 
 <body>
 
-<a href="CrippsyCok.html" class="restaurant-btn">Take me to the Restaurant</a>
+<a href="CrippsyCok.html" class="restaurant-btn">Restaurant</a>
 
 <div class="container">
 
 <div class="comments">
-<h2>Comments</h2>
+<h3>Comments</h3>
 
 <input id="adminCode" placeholder="Admin code">
-<button onclick="enableAdmin()">Enter</button>
+<button onclick="enableAdmin()">OK</button>
 
 <br><br>
 
@@ -117,13 +115,13 @@ video {
 <div id="commentList"></div>
 </div>
 
-<video controls autoplay loop>
-    <source src="WhiteDogLickingScreen.mp4" type="video/mp4">
+<!-- ✅ FIXED VIDEO NAME -->
+<video controls autoplay muted loop>
+    <source src="WhiteDogLickScreen.mp4" type="video/mp4">
 </video>
 
 </div>
 
-<!-- FIREBASE -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
@@ -164,19 +162,16 @@ function addComment() {
 }
 
 function renderComment(key, data) {
-    const list = document.getElementById("commentList");
-
     const div = document.createElement("div");
     div.className = "comment";
 
     div.innerHTML = `
         <strong>${data.name}</strong>
         <div>${data.text}</div>
-        <div style="font-size:11px">${new Date(data.timestamp).toLocaleString()}</div>
 
         <div class="reply-btn" onclick="showReply('${key}')">Reply</div>
 
-        <div id="replyBox-${key}"></div>
+        <div id="reply-${key}"></div>
         <div id="replies-${key}"></div>
 
         <div id="toggle-${key}" class="toggle"></div>
@@ -184,13 +179,12 @@ function renderComment(key, data) {
         <button class="delete-btn" onclick="deleteComment('${key}')">Delete</button>
     `;
 
-    list.prepend(div);
+    commentList.prepend(div);
     loadReplies(key);
 }
 
 function showReply(id) {
-    const box = document.getElementById("replyBox-" + id);
-    box.innerHTML = `
+    document.getElementById("reply-"+id).innerHTML = `
         <input id="rn-${id}" placeholder="Name">
         <input id="rt-${id}" placeholder="Reply">
         <button onclick="addReply('${id}')">Send</button>
@@ -198,8 +192,8 @@ function showReply(id) {
 }
 
 function addReply(id) {
-    const name = document.getElementById("rn-" + id).value.trim();
-    const text = document.getElementById("rt-" + id).value.trim();
+    const name = document.getElementById("rn-"+id).value.trim();
+    const text = document.getElementById("rt-"+id).value.trim();
 
     if (!name || !text) return;
 
@@ -209,58 +203,50 @@ function addReply(id) {
         timestamp: Date.now()
     });
 
-    document.getElementById("replyBox-" + id).innerHTML = "";
+    document.getElementById("reply-"+id).innerHTML = "";
 }
 
-/* FIXED REPLIES */
 function loadReplies(id) {
-    const container = document.getElementById("replies-" + id);
-    const toggle = document.getElementById("toggle-" + id);
+    const container = document.getElementById("replies-"+id);
+    const toggle = document.getElementById("toggle-"+id);
 
-    repliesRef.child(id).on("value", snap => {
-        container.innerHTML = "";
+    repliesRef.child(id).on("child_added", snap => {
+        const r = snap.val();
 
-        const replies = [];
-        snap.forEach(s => replies.push({key:s.key,...s.val()}));
+        const el = document.createElement("div");
+        el.className = "reply";
 
-        replies.forEach((r,i) => {
-            const el = document.createElement("div");
-            el.className = "reply";
+        el.innerHTML = `
+            <strong>${r.name}</strong>
+            <div>${r.text}</div>
+            <button class="delete-btn" onclick="deleteReply('${id}','${snap.key}')">Delete</button>
+        `;
 
-            el.innerHTML = `
-                <strong>${r.name}</strong>
-                <div>${r.text}</div>
-                <div style="font-size:10px">${new Date(r.timestamp).toLocaleString()}</div>
-                <button class="delete-btn" onclick="deleteReply('${id}','${r.key}')">Delete</button>
-            `;
+        container.appendChild(el);
 
-            if (replies.length > 2 && i >= 2) {
-                el.style.display = "none";
-                el.classList.add("hidden-reply");
-            }
-
-            container.appendChild(el);
-        });
+        const replies = container.querySelectorAll(".reply");
 
         if (replies.length > 2) {
+            replies.forEach((e,i)=>{
+                if (i>=2) e.style.display="none";
+            });
+
             toggle.innerText = "Show replies";
             toggle.onclick = () => toggleReplies(id);
-        } else {
-            toggle.innerText = "";
         }
     });
 }
 
 function toggleReplies(id) {
-    const hidden = document.querySelectorAll(`#replies-${id} .hidden-reply`);
-    const isHidden = hidden[0].style.display === "none";
+    const replies = document.querySelectorAll(`#replies-${id} .reply`);
+    const hidden = replies[2].style.display === "none";
 
-    hidden.forEach(el => {
-        el.style.display = isHidden ? "block" : "none";
+    replies.forEach((e,i)=>{
+        if (i>=2) e.style.display = hidden ? "block" : "none";
     });
 
-    document.getElementById("toggle-" + id).innerText =
-        isHidden ? "Hide replies" : "Show replies";
+    document.getElementById("toggle-"+id).innerText =
+        hidden ? "Hide replies" : "Show replies";
 }
 
 function deleteComment(id) {
