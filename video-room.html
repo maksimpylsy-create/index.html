@@ -18,6 +18,23 @@ body {
     background-attachment: fixed;
 }
 
+/* RESTAURANT BUTTON */
+.restaurant-btn {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: #3cb371;
+    color: white;
+    padding: 12px 18px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: bold;
+}
+.restaurant-btn:hover {
+    background: #2e8b57;
+}
+
+/* LAYOUT */
 .container {
     display: flex;
     gap: 40px;
@@ -75,12 +92,13 @@ video {
     width: 500px;
     max-width: 50vw;
     border-radius: 12px;
-    box-shadow: 0 0 20px rgba(0,0,0,0.5);
 }
 </style>
 </head>
 
 <body>
+
+<a href="CrippsyCok.html" class="restaurant-btn">Take me to the Restaurant</a>
 
 <div class="container">
 
@@ -99,9 +117,8 @@ video {
 <div id="commentList"></div>
 </div>
 
-<!-- VIDEO -->
 <video controls autoplay loop>
-    <source src="WhiteDogLickScreen.mp4" type="video/mp4">
+    <source src="WhiteDogLickingScreen.mp4" type="video/mp4">
 </video>
 
 </div>
@@ -131,7 +148,6 @@ function enableAdmin() {
     }
 }
 
-// ADD COMMENT
 function addComment() {
     const name = username.value.trim();
     const text = commentText.value.trim();
@@ -147,7 +163,6 @@ function addComment() {
     commentText.value = "";
 }
 
-// RENDER COMMENT
 function renderComment(key, data) {
     const list = document.getElementById("commentList");
 
@@ -173,7 +188,6 @@ function renderComment(key, data) {
     loadReplies(key);
 }
 
-// SHOW REPLY
 function showReply(id) {
     const box = document.getElementById("replyBox-" + id);
     box.innerHTML = `
@@ -183,7 +197,6 @@ function showReply(id) {
     `;
 }
 
-// ADD REPLY
 function addReply(id) {
     const name = document.getElementById("rn-" + id).value.trim();
     const text = document.getElementById("rt-" + id).value.trim();
@@ -199,12 +212,12 @@ function addReply(id) {
     document.getElementById("replyBox-" + id).innerHTML = "";
 }
 
-// LOAD REPLIES
+/* FIXED REPLIES */
 function loadReplies(id) {
-    repliesRef.child(id).on("value", snap => {
-        const container = document.getElementById("replies-" + id);
-        const toggle = document.getElementById("toggle-" + id);
+    const container = document.getElementById("replies-" + id);
+    const toggle = document.getElementById("toggle-" + id);
 
+    repliesRef.child(id).on("value", snap => {
         container.innerHTML = "";
 
         const replies = [];
@@ -223,6 +236,7 @@ function loadReplies(id) {
 
             if (replies.length > 2 && i >= 2) {
                 el.style.display = "none";
+                el.classList.add("hidden-reply");
             }
 
             container.appendChild(el);
@@ -237,34 +251,28 @@ function loadReplies(id) {
     });
 }
 
-// TOGGLE
 function toggleReplies(id) {
-    const items = document.querySelectorAll(`#replies-${id} .reply`);
-    const hidden = items[2].style.display === "none";
+    const hidden = document.querySelectorAll(`#replies-${id} .hidden-reply`);
+    const isHidden = hidden[0].style.display === "none";
 
-    items.forEach((el,i)=>{
-        if (i >= 2) {
-            el.style.display = hidden ? "block" : "none";
-        }
+    hidden.forEach(el => {
+        el.style.display = isHidden ? "block" : "none";
     });
 
     document.getElementById("toggle-" + id).innerText =
-        hidden ? "Hide replies" : "Show replies";
+        isHidden ? "Hide replies" : "Show replies";
 }
 
-// DELETE COMMENT
 function deleteComment(id) {
     if (!isAdmin) return alert("Admin only");
     commentsRef.child(id).remove();
 }
 
-// DELETE REPLY
 function deleteReply(cid, rid) {
     if (!isAdmin) return alert("Admin only");
     repliesRef.child(cid).child(rid).remove();
 }
 
-// LISTENER
 commentsRef.on("child_added", s => renderComment(s.key, s.val()));
 </script>
 
