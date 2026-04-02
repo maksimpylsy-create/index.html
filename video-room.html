@@ -1,4 +1,6 @@
 <script>
+try {
+
 const firebaseConfig = {
     apiKey: "AIzaSyAyX_ZtqQI1779hgjDrQYwgpusGBGuSkNA",
     authDomain: "poiskeloy.firebaseapp.com",
@@ -17,175 +19,90 @@ const repliesRef = db.ref("replies");
 
 let isAdmin = false;
 
-// ADMIN
 function enableAdmin() {
-    const code = document.getElementById('adminCode').value.trim();
-    if (code === "Goon67") {
+    if (document.getElementById('adminCode').value === "Goon67") {
         isAdmin = true;
         alert("Admin enabled");
-    } else {
-        alert("Wrong code");
     }
 }
 
-// ADD COMMENT
 function addComment() {
-    const name = document.getElementById('username').value.trim();
-    const text = document.getElementById('commentText').value.trim();
+    const name = username.value.trim();
+    const text = commentText.value.trim();
     if (!name || !text) return;
 
-    commentsRef.push({
-        name,
-        text,
-        timestamp: Date.now()
-    });
+    commentsRef.push({ name, text, timestamp: Date.now() });
 
-    document.getElementById('username').value = "";
-    document.getElementById('commentText').value = "";
+    username.value = "";
+    commentText.value = "";
 }
 
-// RENDER COMMENT
 function renderComment(key, data) {
     const list = document.getElementById('commentList');
 
-    let div = document.getElementById("c-" + key);
-    if (!div) {
-        div = document.createElement('div');
-        div.id = "c-" + key;
-        div.className = "comment";
-        list.appendChild(div);
-    }
+    const div = document.createElement('div');
+    div.className = "comment";
 
     div.innerHTML = `
-        <strong>${escapeHtml(data.name)}</strong>
-        <div>${escapeHtml(data.text)}</div>
-        <div class="comment-time">${new Date(data.timestamp).toLocaleString()}</div>
+        <strong>${data.name}</strong>
+        <div>${data.text}</div>
+        <div>${new Date(data.timestamp).toLocaleString()}</div>
 
-        <div style="font-size:12px;color:#007bff;cursor:pointer" onclick="showReply('${key}')">Reply</div>
+        <div style="font-size:12px;color:blue;cursor:pointer" onclick="showReply('${key}')">Reply</div>
 
-        <div id="replyBox-${key}" style="display:none"></div>
-        <div id="replies-${key}" style="margin-left:10px;border-left:2px solid #ddd;padding-left:6px"></div>
-
-        <div id="toggle-${key}" style="font-size:12px;cursor:pointer;color:#555;display:none" onclick="toggleReplies('${key}')">
-            Show replies
-        </div>
-
-        <button class="delete-btn" onclick="deleteComment('${key}')">Delete</button>
+        <div id="reply-${key}"></div>
+        <div id="replies-${key}"></div>
     `;
+
+    list.appendChild(div);
 
     loadReplies(key);
 }
 
-// SHOW REPLY INPUT
 function showReply(id) {
-    const box = document.getElementById("replyBox-" + id);
-    box.style.display = "block";
-    box.innerHTML = `
-        <input placeholder="Name" id="rname-${id}">
-        <input placeholder="Reply" id="rtext-${id}">
-        <button onclick="addReply('${id}')">Reply</button>
+    document.getElementById("reply-"+id).innerHTML = `
+        <input id="rn-${id}" placeholder="name">
+        <input id="rt-${id}" placeholder="reply">
+        <button onclick="addReply('${id}')">send</button>
     `;
 }
 
-// ADD REPLY
 function addReply(id) {
-    const name = document.getElementById(`rname-${id}`).value.trim();
-    const text = document.getElementById(`rtext-${id}`).value.trim();
-    if (!name || !text) return;
+    const name = document.getElementById(`rn-${id}`).value;
+    const text = document.getElementById(`rt-${id}`).value;
 
     repliesRef.child(id).push({
-        name,
-        text,
-        timestamp: Date.now()
+        name, text, timestamp: Date.now()
     });
-
-    document.getElementById("replyBox-" + id).innerHTML = "";
 }
 
-// LOAD REPLIES
 function loadReplies(id) {
-    const container = document.getElementById("replies-" + id);
-    const toggle = document.getElementById("toggle-" + id);
-
     repliesRef.child(id).on("value", snap => {
-        container.innerHTML = "";
+        const box = document.getElementById("replies-"+id);
+        box.innerHTML = "";
 
-        const replies = [];
-        snap.forEach(s => replies.push({key:s.key,...s.val()}));
+        let count = 0;
 
-        replies.forEach((r,i) => {
+        snap.forEach(s => {
+            count++;
+
+            const d = s.val();
+
             const el = document.createElement("div");
-            el.style.background="#eee";
-            el.style.marginTop="5px";
-            el.style.padding="5px";
-            el.style.borderRadius="5px";
+            el.innerHTML = `<b>${d.name}</b>: ${d.text}`;
 
-            el.innerHTML = `
-                <strong>${escapeHtml(r.name)}</strong>
-                <div>${escapeHtml(r.text)}</div>
-                <div style="font-size:11px">${new Date(r.timestamp).toLocaleString()}</div>
-                <button class="delete-btn" onclick="deleteReply('${id}','${r.key}')">Delete</button>
-            `;
+            if (count > 2) el.style.display = "none";
 
-            if (replies.length > 2 && i >= 2) {
-                el.style.display = "none";
-            }
-
-            container.appendChild(el);
+            box.appendChild(el);
         });
-
-        toggle.style.display = replies.length > 2 ? "block" : "none";
     });
 }
 
-// TOGGLE
-function toggleReplies(id) {
-    const items = document.querySelectorAll(`#replies-${id} div`);
-    const hidden = items[2]?.style.display === "none";
-
-    items.forEach((el,i)=>{
-        if (i>=2) el.style.display = hidden ? "block" : "none";
-    });
-
-    document.getElementById(`toggle-${id}`).innerText =
-        hidden ? "Hide replies" : "Show replies";
-}
-
-// DELETE COMMENT
-function deleteComment(key) {
-    if (!isAdmin) return alert("Admin only");
-    if (confirm("Delete comment?")) {
-        commentsRef.child(key).remove();
-    }
-}
-
-// DELETE REPLY
-function deleteReply(cid, rid) {
-    if (!isAdmin) return alert("Admin only");
-    if (confirm("Delete reply?")) {
-        repliesRef.child(cid).child(rid).remove();
-    }
-}
-
-// FIREBASE LISTENERS
 commentsRef.on("child_added", s => renderComment(s.key, s.val()));
-commentsRef.on("child_changed", s => renderComment(s.key, s.val()));
-commentsRef.on("child_removed", s => {
-    const el = document.getElementById("c-" + s.key);
-    if (el) el.remove();
-});
 
-// SAFE HTML
-function escapeHtml(str) {
-    return String(str)
-        .replace(/&/g,"&amp;")
-        .replace(/</g,"&lt;")
-        .replace(/>/g,"&gt;");
+} catch (e) {
+    document.body.innerHTML = "<h1 style='color:red'>ERROR: " + e.message + "</h1>";
 }
 </script>
-
-
-
-
 
 
