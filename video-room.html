@@ -86,8 +86,13 @@ body {
     border-radius: 4px;
 }
 
-/* VIDEO */
-video {
+/* VIDEOS */
+.video-container {
+    display: flex;
+    gap: 15px;
+}
+
+.video-container video {
     width: 350px;
     border-radius: 12px;
 }
@@ -127,10 +132,16 @@ video {
 <div id="commentList"></div>
 </div>
 
-<!-- VIDEO -->
-<video controls autoplay muted loop>
-    <source src="WhiteDogLickScreen.mp4" type="video/mp4">
-</video>
+<!-- VIDEOS -->
+<div class="video-container">
+    <video controls autoplay muted loop>
+        <source src="WhiteDogLickScreen.mp4" type="video/mp4">
+    </video>
+
+    <video controls autoplay muted loop>
+        <source src="PatrickWarrior.mp4" type="video/mp4">
+    </video>
+</div>
 
 </div>
 
